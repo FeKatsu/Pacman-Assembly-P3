@@ -100,78 +100,29 @@ INT15			WORD	Timer
                 JMP     Main
 
 ;------------------------------------------------------------------------------
-; Funcao desenha mapa
-;------------------------------------------------------------------------------
-WriteMap: PUSH R1
-		  PUSH R2
-		  PUSH R3
-		  PUSH R4
-
-		  MOV R4, M[TextIndex]
-
-WriteCol: MOV R2, 0d
-
-WriteChar:MOV R3, M[R4]
-		  MOV R1, M[RowIndex]
-		  SHL R1, ROW_SHIFT
-		  OR  R1, R2
-		  MOV M[CURSOR], R1
-		  MOV M[IO_WRITE], R3
-		  INC R2
-		  INC R4
-		  CMP R3, FIM_TEXTO
-		  JMP.NZ WriteChar
-
-		  INC M[RowIndex]
-		  MOV R1, M[RowIndex]
-		  CMP R1, M[RowLimit]
-		  JMP.NZ WriteCol
-
-EndWrite: POP R4
-		  POP R3
-		  POP R2
-		  POP R1
-		  RET
-
-WriteMenu: PUSH R1
-		   PUSH R2
-
-		   MOV R1, L0
-		   MOV M[TextIndex], R1
-		   CALL WriteMap
- 
-		   POP R2
-		   POP R1
- 
-		   RET
-
-;------------------------------------------------------------------------------
 ; Relogio
 ;------------------------------------------------------------------------------
 
 Timer: PUSH R1
-	   PUSH R2
 	   MOV R1, M[PacmanDirection]
 	   
 	   CMP R1, NO_DIRECTION
 	   JMP.Z EndTimer ;NÃO FAZ NADA
 
 	   CMP R1, UP
-	   JMP.Z PacmanMovUp
+	   CALL.Z PacmanMovUp
 
 	   CMP R1, DOWN
-	   JMP.Z PacmanMovDown
+	   CALL.Z PacmanMovDown
 	   
 	   CMP R1, LEFT
-	   JMP.Z PacmanMovLeft
+	   CALL.Z PacmanMovLeft
 	   
 	   CMP R1, RIGHT
-	   JMP.Z PacmanMovRight
+	   CALL.Z PacmanMovRight
 	   
 
 EndTimer: CALL ConfigTimer
-
-	   	  POP R2
 	   	  POP R1
 	   	  RTI
 
@@ -182,34 +133,59 @@ ConfigTimer: PUSH R1
 			 MOV M[ACTIVATE_TIMER], R1
 			 POP R1
 			 RET
+			 
+;------------------------------------------------------------------------------
+; Funcao desenha mapa
+;------------------------------------------------------------------------------
+PrintString: PUSH R1
+		  PUSH R2
+		  PUSH R3
+		  PUSH R4
+		  MOV M[ColumnIndex], R0
+		  MOV M[TextIndex], R0
 
-UpdatePacmanDirUp: PUSH R1
-				   MOV R1, UP
-				   MOV M[PacmanDirection], R1
-				   POP R1
-				   RTI
+StringLoop: MOV R2, R1
+			ADD R2, M[TextIndex]
+			MOV R2, M[R2]
+			CMP R2, FIM_TEXTO
+			JMP.Z EndPrintString
 
-UpdatePacmanDirDown: PUSH R1
-				   MOV R1, DOWN
-				   MOV M[PacmanDirection], R1
-				   POP R1
-				   RTI
+			MOV R4, M[ColumnIndex]
+			MOV R3, M[RowIndex]
+			SHL R3, ROW_SHIFT
+			OR R3, R4
 
-UpdatePacmanDirLeft: PUSH R1
-				   MOV R1, LEFT
-				   MOV M[PacmanDirection], R1
-				   POP R1
-				   RTI
+			MOV M[CURSOR], R3
+			MOV M[IO_WRITE], R2
+			INC M[TextIndex]
+			INC M[ColumnIndex]
+			JMP StringLoop
 
-UpdatePacmanDirRight: PUSH R1
-				   MOV R1, RIGHT
-				   MOV M[PacmanDirection], R1
-				   POP R1
-				   RTI
+EndPrintString: MOV M[ColumnIndex], R0
+				POP R4
+				POP R3
+				POP R2
+				POP R1
+				RET
+
+PrintMap: PUSH R1
+		  PUSH R2
+
+MapLoop: CALL PrintString
+		 ADD R1, 81d
+		 INC M[RowIndex]
+
+		 CMP R1, R2
+		 JMP.NP MapLoop
+
+EndPrintMap: POP R2
+			 POP R1
+			 RET
+			 
+		 
 ;------------------------------------------------------------------------------
 ; Movimento do Pacman
 ;------------------------------------------------------------------------------
-
 
 ;------------------------------------------------------------------------------
 ; Funções de impressão
@@ -243,13 +219,37 @@ PacmanErase: PUSH R1
 ;------------------------------------------------------------------------------
 ; Movimentação
 ;------------------------------------------------------------------------------
+UpdatePacmanDirUp: PUSH R1
+				   MOV R1, UP
+				   MOV M[PacmanDirection], R1
+				   POP R1
+				   RTI
+
+UpdatePacmanDirDown: PUSH R1
+				   MOV R1, DOWN
+				   MOV M[PacmanDirection], R1
+				   POP R1
+				   RTI
+
+UpdatePacmanDirLeft: PUSH R1
+				   MOV R1, LEFT
+				   MOV M[PacmanDirection], R1
+				   POP R1
+				   RTI
+
+UpdatePacmanDirRight: PUSH R1
+				   MOV R1, RIGHT
+				   MOV M[PacmanDirection], R1
+				   POP R1
+				   RTI
+
 PacmanMovUp:   PUSH R1
                PUSH R2
                PUSH R3
 			   JMP ColisaoUp 
   
-ContinueUp:	   DEC M[PacmanRowIndex]
-			   CALL PacmanErase			 
+ContinueUp:	   CALL PacmanErase			 
+			   DEC M[PacmanRowIndex]
 			   CALL PacmanPrint
 			   JMP EndColisao
   
@@ -272,8 +272,8 @@ PacmanMovDown: PUSH R1
 			   PUSH R3
 			   JMP ColisaoD
 			   
-ContinueD:	   INC M[PacmanRowIndex]
-			   CALL PacmanErase
+ContinueD:	   CALL PacmanErase
+			   INC M[PacmanRowIndex]
 			   CALL PacmanPrint
 			   JMP EndColisao
   
@@ -296,8 +296,8 @@ PacmanMovLeft: PUSH R1
 			   PUSH R3
 			   JMP ColisaoL
  
-ContinueL:	   DEC M[PacmanColIndex]
-			   CALL PacmanErase
+ContinueL:	   CALL PacmanErase
+			   DEC M[PacmanColIndex]
 			   CALL PacmanPrint
 			   JMP EndColisao
 
@@ -320,8 +320,8 @@ PacmanMovRight:PUSH R1
 			   PUSH R3
 			   JMP ColisaoR
 
-ContinueR:	   INC M[PacmanColIndex]
-			   CALL PacmanErase
+ContinueR:	   CALL PacmanErase
+			   INC M[PacmanColIndex]
 			   CALL PacmanPrint
 			   JMP EndColisao
 
@@ -358,7 +358,9 @@ Main:			ENI
 				MOV		R1, CURSOR_INIT		; We need to initialize the cursor 
 				MOV		M[ CURSOR ], R1		; with value CURSOR_INIT
 
-				CALL WriteMenu
+				MOV R1, L0
+				MOV R2, L23
+				CALL PrintMap
 
 				CALL PacmanPrint
 
