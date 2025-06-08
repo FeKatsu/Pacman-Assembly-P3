@@ -51,7 +51,7 @@ L8    			STR		'#.######.........#............................................#..
 L9    			STR		'#.################...###.########.#####..#####.########.###...################.#', FIM_TEXTO
 L10   			STR		'#..................#.###..........#..........#..........###.#..................#', FIM_TEXTO
 L11   			STR		'##########..######.#.....####.#.#.#..........#.#.#.####.....#.######..##########', FIM_TEXTO
-L12   			STR		'<.............####.#####.####.#.#.#..........#.#.#.####.#####.####.............>', FIM_TEXTO
+L12   			STR		'..............####.#####.####.#.#.#..........#.#.#.####.#####.####..............', FIM_TEXTO
 L13   			STR		'###########.#...............#.#.#.############.#.#...............#...###########', FIM_TEXTO
 L14   			STR		'#...........#.#######.#######......................#######.#######.#...........#', FIM_TEXTO
 L15   			STR		'#.#########.#.#.............#######.########.#######.............#.#.#########.#', FIM_TEXTO
@@ -127,7 +127,7 @@ EndTimer: CALL ConfigTimer
 	   	  RTI
 
 ConfigTimer: PUSH R1
-			 MOV R1, 10d
+			 MOV R1, 5d
 			 MOV M[TIMER_UNITS], R1
 			 MOV R1, ON
 			 MOV M[ACTIVATE_TIMER], R1
@@ -138,12 +138,12 @@ ConfigTimer: PUSH R1
 ; Funcao desenha mapa
 ;------------------------------------------------------------------------------
 PrintString: PUSH R1
-		  PUSH R2
-		  PUSH R3
-		  PUSH R4
-		  MOV M[ColumnIndex], R0
-		  MOV M[TextIndex], R0
-
+		  	 PUSH R2
+		  	 PUSH R3
+		  	 PUSH R4
+		  	 MOV M[ColumnIndex], R0
+		  	 MOV M[TextIndex], R0
+	 
 StringLoop: MOV R2, R1
 			ADD R2, M[TextIndex]
 			MOV R2, M[R2]
@@ -226,123 +226,141 @@ UpdatePacmanDirUp: PUSH R1
 				   RTI
 
 UpdatePacmanDirDown: PUSH R1
-				   MOV R1, DOWN
-				   MOV M[PacmanDirection], R1
-				   POP R1
-				   RTI
+				   	 MOV R1, DOWN
+				   	 MOV M[PacmanDirection], R1
+				   	 POP R1
+				   	 RTI
 
 UpdatePacmanDirLeft: PUSH R1
-				   MOV R1, LEFT
-				   MOV M[PacmanDirection], R1
-				   POP R1
-				   RTI
+				   	 MOV R1, LEFT
+				   	 MOV M[PacmanDirection], R1
+				   	 POP R1
+				   	 RTI
 
 UpdatePacmanDirRight: PUSH R1
-				   MOV R1, RIGHT
-				   MOV M[PacmanDirection], R1
-				   POP R1
-				   RTI
+				   	 MOV R1, RIGHT
+				   	 MOV M[PacmanDirection], R1
+				   	 POP R1
+				   	 RTI
 
-PacmanMovUp:   PUSH R1
-               PUSH R2
-               PUSH R3
-			   JMP ColisaoUp 
-  
-ContinueUp:	   CALL PacmanErase			 
-			   DEC M[PacmanRowIndex]
-			   CALL PacmanPrint
-			   JMP EndColisao
-  
-ColisaoUp:     MOV R1, M[PacmanColIndex]
-               MOV R2, M[PacmanRowIndex]
-			   DEC R2
-               MOV R3, 81d
-               MUL R3, R2
-               ADD R2, R1
-			   ADD R2, 8000h
-               MOV R2, M[R2]
-  
-               MOV R3, '#'
-			   CMP R2, R3 
-               JMP.Z EndColisao
-               JMP ContinueUp
+PacmanMove: PUSH R3
+    		PUSH R4
+    		PUSH R5
+    		PUSH R6
 
+    		; Calcula nova posição
+    		MOV R3, M[PacmanRowIndex]
+    		ADD R3, R1             ; nova linha
+
+    		MOV R4, M[PacmanColIndex]
+    		ADD R4, R2             ; nova coluna
+
+    		; Testa colisão
+    		MOV R5, R3
+    		MOV R6, 81d
+    		MUL R5, R6             ; R5 = nova_linha * 81
+    		ADD R6, R4             ; R5 = posição linear
+    		ADD R6, 8000h          ; endereço da posição na memória de vídeo
+
+    		MOV R6, M[R6]          ; caractere na posição
+    		MOV R5, '#'            ; obstáculo
+    		CMP R6, R5
+    		JMP.Z EndMove          ; colisão, não move
+
+			;Move pacman
+    		CALL PacmanErase
+    		ADD M[PacmanRowIndex], R1
+    		ADD M[PacmanColIndex], R2
+			CALL Portal
+    		CALL PacmanPrint
+
+EndMove: POP R6
+		 POP R5
+		 POP R4
+		 POP R3
+		 RET
+
+Portal: PUSH R1
+		PUSH R2
+		MOV R1, M[PacmanColIndex]
+		CMP R1, FFFFh
+		JMP.Z PortalLeft
+		MOV R2, 80d
+		DIV R1, R2 ;r2 = x%80, r1 = x/80
+		MOV M[PacmanColIndex], R2
+
+EndPortal: POP R2
+		   POP R1
+		   RET
+
+PortalLeft: MOV R1, 79d
+			MOV M[PacmanColIndex], R1
+			JMP EndPortal
+
+; Movimento para cima
+PacmanMovUp: PUSH R1
+    		 PUSH R2
+    		 MOV R1, -1     ; linha -1 (cima)
+    		 MOV R2, 0      ; coluna 0
+    		 CALL PacmanMove
+    		 POP R2
+    		 POP R1
+    		 RET
+
+; Movimento para baixo
 PacmanMovDown: PUSH R1
-			   PUSH R2
-			   PUSH R3
-			   JMP ColisaoD
-			   
-ContinueD:	   CALL PacmanErase
-			   INC M[PacmanRowIndex]
-			   CALL PacmanPrint
-			   JMP EndColisao
-  
-ColisaoD:      MOV R1, M[PacmanColIndex]
-               MOV R2, M[PacmanRowIndex]
-			   INC R2
-               MOV R3, 81d
-               MUL R3, R2
-               ADD R2, R1
-			   ADD R2, 8000h
-               MOV R2, M[R2]
-  
-               MOV R3, '#'
-			   CMP R2, R3 
-               JMP.Z EndColisao
-               JMP ContinueD
-  
+    		   PUSH R2
+    		   MOV R1, 1
+    		   MOV R2, 0
+    		   CALL PacmanMove
+    		   POP R2
+    		   POP R1
+    		   RET
+
+; Movimento para esquerda
 PacmanMovLeft: PUSH R1
-			   PUSH R2
-			   PUSH R3
-			   JMP ColisaoL
- 
-ContinueL:	   CALL PacmanErase
-			   DEC M[PacmanColIndex]
-			   CALL PacmanPrint
-			   JMP EndColisao
+    		   PUSH R2
+    		   MOV R1, 0
+    		   MOV R2, -1
+    		   CALL PacmanMove
+    		   POP R2
+    		   POP R1
+    		   RET
 
-ColisaoL: 	   MOV R1, M[PacmanColIndex]
-               MOV R2, M[PacmanRowIndex]
-			   DEC R1
-               MOV R3, 81d
-               MUL R3, R2
-               ADD R2, R1
-			   ADD R2, 8000h
-               MOV R2, M[R2]
-  
-               MOV R3, '#'
-			   CMP R2, R3 
-               JMP.Z EndColisao
-               JMP ContinueL
+; Movimento para direita
+PacmanMovRight: PUSH R1
+    		   	PUSH R2
+    		   	MOV R1, 0
+    		   	MOV R2, 1
+    		   	CALL PacmanMove
+    		   	POP R2
+    		   	POP R1
+    		   	RET
 
-PacmanMovRight:PUSH R1
-			   PUSH R2
-			   PUSH R3
-			   JMP ColisaoR
+;------------------------------------------------------------------------------
+; Portal e pontuação
+;------------------------------------------------------------------------------
+GetPositionMem: PUSH R1
+    		    PUSH R2
+    		    PUSH R3
+    
+    		    ; posição na tela
+    		    MOV R1, M[PacmanRowIndex]
+    		    MOV R2, M[PacmanColIndex]
+    
+    		    ; pega posição na memória
+    		    MOV R3, 81d
+    		    MUL R3, R2             ; R5 = nova_linha * 81
+    		    ADD R2, R1             ; R5 = posição linear
+    		    ADD R2, 8000h          ; endereço da posição na memória de vídeo
 
-ContinueR:	   CALL PacmanErase
-			   INC M[PacmanColIndex]
-			   CALL PacmanPrint
-			   JMP EndColisao
+				MOV R2, M[R2] 
+				MOV M[PosAtual], R2          ; caracter na memória
+				POP R3
+				POP R2
+				POP R1
+				RET
 
-ColisaoR: 	   MOV R1, M[PacmanColIndex]
-               MOV R2, M[PacmanRowIndex]
-			   INC R1
-               MOV R3, 81d
-               MUL R3, R2
-               ADD R2, R1
-			   ADD R2, 8000h
-               MOV R2, M[R2]
-  
-               MOV R3, '#'
-			   CMP R2, R3 
-               JMP.Z EndColisao
-               JMP ContinueR
-
-EndColisao:    POP R3
-               POP R2
-               POP R1
-               RET
 ;------------------------------------------------------------------------------
 ; Função Main
 ;------------------------------------------------------------------------------
