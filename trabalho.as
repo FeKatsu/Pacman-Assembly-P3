@@ -15,8 +15,8 @@ COL_POSITION	EQU		0d
 ROW_SHIFT		EQU		8d
 COLUMN_SHIFT	EQU		8d
 ROW_LIMIT		EQU 	24d
-PacmanColInit	EQU		40d
-PacmanRowInit	EQU		14d
+PacmanColInit	EQU		5d
+PacmanRowInit	EQU		2d
 TIMER_UNITS		EQU		FFF6h
 ACTIVATE_TIMER  EQU		FFF7h
 OFF				EQU		0d
@@ -64,8 +64,34 @@ L21   			STR		'#..0..###############.##.###.#.########..########.#.###.##.######
 L22   			STR		'#.....................##................................##.....................#', FIM_TEXTO
 L23   			STR		'################################################################################', FIM_TEXTO
 
+;------------------------------------------------------------------------------
+; Tela de game over
+;------------------------------------------------------------------------------
 
-
+L24    			STR		'################################################################################', FIM_TEXTO
+L25    			STR		'################################################################################', FIM_TEXTO
+L26    			STR		'################################################################################', FIM_TEXTO
+L27    			STR		'################################################################################', FIM_TEXTO
+L28    			STR		'################################################################################', FIM_TEXTO
+L29    			STR		'################################################################################', FIM_TEXTO
+L30    			STR		'################################################################################', FIM_TEXTO
+L31    			STR		'################################################################################', FIM_TEXTO
+L32    			STR		'################################################################################', FIM_TEXTO
+L33    			STR		'################################################################################', FIM_TEXTO
+L34   			STR		'################################################################################', FIM_TEXTO
+L35   			STR		'################################################################################', FIM_TEXTO
+L36   			STR		'################################################################################', FIM_TEXTO
+L37   			STR		'################################################################################', FIM_TEXTO
+L38   			STR		'################################################################################', FIM_TEXTO
+L39   			STR		'################################################################################', FIM_TEXTO
+L40   			STR		'################################################################################', FIM_TEXTO
+L41   			STR		'################################################################################', FIM_TEXTO
+L42   			STR		'################################################################################', FIM_TEXTO
+L43   			STR		'################################################################################', FIM_TEXTO
+L44   			STR		'################################################################################', FIM_TEXTO
+L45   			STR		'################################################################################', FIM_TEXTO
+L46   			STR		'################################################################################', FIM_TEXTO
+L47   			STR		'################################################################################', FIM_TEXTO
 
 NADA			WORD 	' '
 RowLimit 		WORD    24d
@@ -209,10 +235,20 @@ PacmanPrint: PUSH R1
 			 RET
 
 PacmanErase: PUSH R1
+			 PUSH R2
+			 PUSH R3
+			 MOV R2, M[PacmanColIndex]
+			 MOV R3, M[PacmanRowIndex]
+
+			 SHL R3, ROW_SHIFT
+			 OR  R3, R2
+			 MOV M[CURSOR], R3
 
 			 MOV R1, M[NADA]
 			 MOV M[IO_WRITE], R1
 
+			 POP R3
+			 POP R2
 			 POP R1
 			 RET
 
@@ -238,10 +274,10 @@ UpdatePacmanDirLeft: PUSH R1
 				   	 RTI
 
 UpdatePacmanDirRight: PUSH R1
-				   	 MOV R1, RIGHT
-				   	 MOV M[PacmanDirection], R1
-				   	 POP R1
-				   	 RTI
+				   	  MOV R1, RIGHT
+				   	  MOV M[PacmanDirection], R1
+				   	  POP R1
+				   	  RTI
 
 PacmanMove: PUSH R3
     		PUSH R4
@@ -273,29 +309,13 @@ PacmanMove: PUSH R3
     		ADD M[PacmanColIndex], R2
 			CALL Portal
     		CALL PacmanPrint
+			CALL Pontuacao
 
 EndMove: POP R6
 		 POP R5
 		 POP R4
 		 POP R3
 		 RET
-
-Portal: PUSH R1
-		PUSH R2
-		MOV R1, M[PacmanColIndex]
-		CMP R1, FFFFh
-		JMP.Z PortalLeft
-		MOV R2, 80d
-		DIV R1, R2 ;r2 = x%80, r1 = x/80
-		MOV M[PacmanColIndex], R2
-
-EndPortal: POP R2
-		   POP R1
-		   RET
-
-PortalLeft: MOV R1, 79d
-			MOV M[PacmanColIndex], R1
-			JMP EndPortal
 
 ; Movimento para cima
 PacmanMovUp: PUSH R1
@@ -339,27 +359,110 @@ PacmanMovRight: PUSH R1
 
 ;------------------------------------------------------------------------------
 ; Portal e pontuação
-;------------------------------------------------------------------------------
-GetPositionMem: PUSH R1
-    		    PUSH R2
-    		    PUSH R3
-    
-    		    ; posição na tela
-    		    MOV R1, M[PacmanRowIndex]
-    		    MOV R2, M[PacmanColIndex]
-    
-    		    ; pega posição na memória
-    		    MOV R3, 81d
-    		    MUL R3, R2             ; R5 = nova_linha * 81
-    		    ADD R2, R1             ; R5 = posição linear
-    		    ADD R2, 8000h          ; endereço da posição na memória de vídeo
+;------------------------------------------------------------------------------ 
+Portal: PUSH R1
+		PUSH R2
+		MOV R1, M[PacmanColIndex]
+		CMP R1, FFFFh
+		JMP.Z PortalLeft
+		MOV R2, 80d
+		DIV R1, R2 ;r2 = x%80, r1 = x/80
+		MOV M[PacmanColIndex], R2
 
-				MOV R2, M[R2] 
-				MOV M[PosAtual], R2          ; caracter na memória
-				POP R3
-				POP R2
-				POP R1
-				RET
+EndPortal: POP R2
+		   POP R1
+		   RET
+
+PortalLeft: MOV R1, 79d
+			MOV M[PacmanColIndex], R1
+			JMP EndPortal
+
+Pontuacao: PUSH R1
+           PUSH R2
+           PUSH R3 
+
+           MOV R1, M[PacmanRowIndex]
+           MOV R2, M[PacmanColIndex]   
+           
+           ; Pega posicao na memoria
+           MOV R3, 81d
+           MUL R1, R3
+           ADD R3, R2
+           ADD R3, 8000h          ; Endereco da posicao na memoria de video
+           
+           MOV R2, M[R3]
+           MOV R1, '.'
+           CMP R2, R1             ; Verifica se o caractere eh um ponto '.'
+           JMP.NZ EndPont         ; Se nao for, finaliza a funcao
+           
+           ; Se for um ponto:
+           MOV R1, 10d            ; Valor a ser adicionado ao score
+           ADD M[Score], R1       ; Incrementa o score
+           CALL PrintScore        ; <<< CHAMA A FUNCAO PARA ATUALIZAR A TELA
+           MOV R1, ' '            ; Caractere de espaco para apagar o ponto
+           MOV M[R3], R1          ; Apaga o ponto do mapa
+
+EndPont:   POP R3
+           POP R2
+           POP R1
+           RET
+
+;------------------------------------------------------------------------------
+; Funcao para imprimir a pontuacao na tela
+;------------------------------------------------------------------------------
+PrintScore: PUSH R1
+            PUSH R2
+            PUSH R3
+            PUSH R4
+            PUSH R5
+            PUSH R6
+
+            MOV R1, M[Score]      
+            MOV R2, 5d            ; R2 = contador de digitos (5)
+            MOV R3, 10000d        ; R3 = divisor inicial para pegar digito a digito
+            MOV R4, 70d           
+
+ScoreLoop:  CMP R2, 0d            ; Se o contador de digitos for 0, termina
+            JMP.Z EndPrintScore
+
+			MOV R5, R3			  ; Salva o valor de R3 pois é alterado no DIV
+            MOV R6, R1            ; Copia o valor atual do score para R6
+            DIV R6, R3            
+            ADD R6, '0'           ; Converte o digito para o caractere ASCII ('0'-'9')
+			MOV R3, R5			  ; valor salvo de R3
+            
+            ; Posiciona o cursor para impressao
+            PUSH R1               ; Fazendo uma "função aninhada"
+            PUSH R3
+
+            MOV R1, R0            
+            SHL R1, ROW_SHIFT     
+            OR  R1, R4            
+            MOV M[CURSOR], R1     ; Define a posicao do cursor
+            POP R3                
+            POP R1                
+            
+            MOV M[IO_WRITE], R6   
+
+            ; Prepara para a proxima iteracao
+			MOV R5, R3
+            DIV R1, R3
+			MOV R1, R3           ; R1 agora guarda o resto da divisao (R1 = R1 % R3)
+            MOV R6, 10d 
+			MOV R3, R5          
+            DIV R3, R6            ; Atualiza o divisor para o proximo digito (R3 = R3 / 10)
+            
+            INC R4                ; Vai para a proxima coluna
+            DEC R2                ; Decrementa o contador de digitos
+            JMP ScoreLoop         ; Repete o loop
+
+EndPrintScore: POP R6                ; Restaura todos os registradores na ordem inversa
+               POP R5
+               POP R4
+               POP R3
+               POP R2
+               POP R1
+               RET                   ; Retorna da funcao
 
 ;------------------------------------------------------------------------------
 ; Função Main
@@ -380,6 +483,7 @@ Main:			ENI
 				MOV R2, L23
 				CALL PrintMap
 
+				CALL PrintScore 
 				CALL PacmanPrint
 
 				CALL ConfigTimer
