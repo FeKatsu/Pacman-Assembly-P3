@@ -17,6 +17,19 @@ COLUMN_SHIFT	EQU		8d
 ROW_LIMIT		EQU 	24d
 PacmanColInit	EQU		40d
 PacmanRowInit	EQU		14d
+
+Ghost1_x_Init	EQU     3d
+Ghost1_y_Init	EQU 	3d
+
+Ghost2_x_Init	EQU     78d
+Ghost2_y_Init	EQU 	3d
+
+Ghost3_x_Init	EQU     3d
+Ghost3_y_Init	EQU 	21d
+
+Ghost4_x_Init	EQU     78d
+Ghost4_y_Init	EQU 	21d
+
 TIMER_UNITS		EQU		FFF6h
 ACTIVATE_TIMER  EQU		FFF7h
 OFF				EQU		0d
@@ -40,12 +53,12 @@ RIGHT			EQU     4d
 
 L0    			STR		'#####Vidas: 3 #######################Pacman#####################Score:00000#####', FIM_TEXTO
 L1    			STR		'################################################################################', FIM_TEXTO
-L2    			STR		'#..............................................................................#', FIM_TEXTO
-L3    			STR		'#.####.#.#######.#######.#####.##################.#####.#######.#######.#.####.#', FIM_TEXTO
-L4    			STR		'#......#.#######.#...........#....................#...........#.#######.#......#', FIM_TEXTO
+L2    			STR		'#     ....................................................................     #', FIM_TEXTO
+L3    			STR		'#     .#.#######.#######.#####.##################.#####.#######.#######.#.     #', FIM_TEXTO
+L4    			STR		'#     .#.#######.#...........#....................#...........#.#######.#.     #', FIM_TEXTO
 L5    			STR		'######.#.........#.#########.#.##################.#.#########.#.........#.######', FIM_TEXTO
 L6    			STR		'######.#.#######...#.........#.........##.........#.........#...#######.#.######', FIM_TEXTO
-L7    			STR		'#......#.#######.#.#.#######.#########....#########.#######.#.#.#######.#......#', FIM_TEXTO
+L7    			STR		'#........#######.#.#.#######.#########....#########.#######.#.#.#######........#', FIM_TEXTO
 L8    			STR		'#.######.........#............................................#.........######.#', FIM_TEXTO
 L9    			STR		'#.################...###.########.#####..#####.########.###...################.#', FIM_TEXTO
 L10   			STR		'#..................#.###..........#..........#..........###.#..................#', FIM_TEXTO
@@ -53,14 +66,14 @@ L11   			STR		'##########..######.#.....####.#.#.#..........#.#.#.####.....#.###
 L12   			STR		'..............####.#####.####.#.#.#..........#.#.#.####.#####.####..............', FIM_TEXTO
 L13   			STR		'###########.#...............#.#.#.#..........#.#.#...............#...###########', FIM_TEXTO
 L14   			STR		'#...........#.#######.#######......................#######.#######.#...........#', FIM_TEXTO
-L15   			STR		'#.#########.#.#.............#######.########.#######.............#.#.#########.#', FIM_TEXTO
+L15   			STR		'#.#.#######.#.#.............#######.########.#######.............#.#.#######.#.#', FIM_TEXTO
 L16   			STR		'#.#.........#.#.#####.#####..........................#####.#####.#.#.........#.#', FIM_TEXTO
-L17   			STR		'#.#.#######.#.#.#####.#####.#.#######.#..#.#######.#.#####.#####.#.#.#######.#.#', FIM_TEXTO
+L17   			STR		'#.#.#.#####.#.#.#####.#####.#.#######.#..#.#######.#.#####.#####.#.#.#####.#.#.#', FIM_TEXTO
 L18   			STR		'#.#.#.......#.#.#####.#####.#....#....#..#....#....#.#####.#####.#.#.......#.#.#', FIM_TEXTO
-L19   			STR		'#.#.#.#######.#.#####.#####.####.#.####..####.#.####.#####.#####.#.#######.#.#.#', FIM_TEXTO
-L20   			STR		'#.............#.......................#..#.......................#.............#', FIM_TEXTO
-L21   			STR		'#.###.###############.##.###.#.########..########.#.###.##.###############.###.#', FIM_TEXTO
-L22   			STR		'#.....................##................................##.....................#', FIM_TEXTO
+L19   			STR		'#.#.#.###.###.#.#####.#####.####.#.####..####.#.####.#####.#####.#.###.###.#.#.#', FIM_TEXTO
+L20   			STR		'#     ........#.......................#..#.......................#........     #', FIM_TEXTO
+L21   			STR		'#     ###############.##.###.#.########..########.#.###.##.###############     #', FIM_TEXTO
+L22   			STR		'#     ................##................................##................     #', FIM_TEXTO
 L23   			STR		'################################################################################', FIM_TEXTO
 
 ;------------------------------------------------------------------------------
@@ -91,6 +104,10 @@ L44   			STR		'#################################################################
 L45   			STR		'################################################################################', FIM_TEXTO
 L46   			STR		'################################################################################', FIM_TEXTO
 L47   			STR		'################################################################################', FIM_TEXTO
+
+;------------------------------------------------------------------------------
+; Tela de vitória
+;------------------------------------------------------------------------------
 
 L48    			STR		'################################################################################', FIM_TEXTO
 L49    			STR		'################################################################################', FIM_TEXTO
@@ -131,8 +148,15 @@ PacmanDirection WORD	NO_DIRECTION
 GhostDirection  WORD	NO_DIRECTION
 Vidas			WORD    3d
 Ghost			WORD 	'A'
-Ghost1_x		WORD    38d
-Ghost1_y		WORD 	11d
+GhostLastChar   WORD    '.'
+Ghost1_x		WORD    Ghost1_x_Init
+Ghost1_y		WORD 	Ghost1_y_Init
+Ghost2_x		WORD    Ghost2_x_Init
+Ghost2_y		WORD 	Ghost2_y_Init
+Ghost3_x		WORD    Ghost3_x_Init
+Ghost3_y		WORD 	Ghost3_y_Init
+Ghost4_x		WORD    Ghost4_x_Init
+Ghost4_y		WORD 	Ghost4_y_Init
 
 ;------------------------------------------------------------------------------
 ; ZONA III: definicao de tabela de interrupções
@@ -164,11 +188,27 @@ Timer: PUSH R1
 
 	   MOV R3, M[Ghost1_x]
 	   MOV R4, M[Ghost1_y]
-	   CALL VerificaMorte
 	   CALL MoveGhost
 	   MOV M[Ghost1_x], R3
 	   MOV M[Ghost1_y], R4
 
+	   MOV R3, M[Ghost2_x]
+	   MOV R4, M[Ghost2_y]
+	   CALL MoveGhost
+	   MOV M[Ghost2_x], R3
+	   MOV M[Ghost2_y], R4
+
+	   MOV R3, M[Ghost3_x]
+	   MOV R4, M[Ghost3_y]
+	   CALL MoveGhost
+	   MOV M[Ghost3_x], R3
+	   MOV M[Ghost3_y], R4
+
+	   MOV R3, M[Ghost4_x]
+	   MOV R4, M[Ghost4_y]
+	   CALL MoveGhost
+	   MOV M[Ghost4_x], R3
+	   MOV M[Ghost4_y], R4
 
 	   MOV R1, M[PacmanDirection]
 	   
@@ -187,6 +227,7 @@ Timer: PUSH R1
 	   CMP R1, RIGHT
 	   CALL.Z PacmanMovRight
 	   
+	   CALL WinCheck
 
 
 EndTimer: CALL ConfigTimer
@@ -275,9 +316,116 @@ GameOverLoop:  CALL PrintString      ; Imprime uma linha do mapa
                POP R3
                POP R2
                POP R1
-               RET
+               JMP EndAll
+
 ;------------------------------------------------------------------------------
-; Movimento do Pacman
+; Tela de vitória
+;------------------------------------------------------------------------------
+
+PrintVictory:  PUSH R1
+               PUSH R2
+               PUSH R3
+               
+               MOV R3, 0d            ; Reseta o indice da linha para 0
+               MOV M[RowIndex], R3
+               
+               MOV R1, L48           ; Endereço inicial do mapa de Vitória
+               MOV R2, L71           ; Endereço final do mapa de Vitória
+
+VictoryLoop:   CALL PrintString   
+               ADD R1, 81d         
+               INC M[RowIndex]    
+               
+               CMP R1, R2
+               JMP.NP VictoryLoop 
+
+               POP R3
+               POP R2
+               POP R1
+			   JMP EndAll
+
+WinCheck: PUSH R1
+		  MOV R1, M[Score]
+		  CMP R1, 8630d
+		  CALL.Z PrintVictory
+		  POP R1
+		  RET
+
+;------------------------------------------------------------------------------
+; Resets do game
+;------------------------------------------------------------------------------
+
+EndAll: MOV R1, OFF
+        MOV M[ACTIVATE_TIMER], R1 ; Para o timer
+        JMP Halt
+
+Reset:  PUSH R1
+        PUSH R2
+
+        ;Apaga os fantasmas das suas posicoes atuais e reseta as posições dos fantasmas
+
+		MOV R3, M[Ghost1_x]
+        MOV R4, M[Ghost1_y]
+        CALL GhostErase
+
+		MOV R3, Ghost1_x_Init
+        MOV R4, Ghost1_y_Init
+
+        MOV M[Ghost1_x], R3
+        MOV M[Ghost1_y], R4
+        CALL GhostPrint
+
+
+		MOV R3, M[Ghost2_x]
+        MOV R4, M[Ghost2_y]
+        CALL GhostErase
+		MOV R3, Ghost2_x_Init
+        MOV R4, Ghost2_y_Init
+
+        MOV M[Ghost2_x], R3
+        MOV M[Ghost2_y], R4
+		CALL GhostPrint
+
+		MOV R3, M[Ghost3_x]
+        MOV R4, M[Ghost3_y]
+        CALL GhostErase
+		MOV R3, Ghost3_x_Init
+        MOV R4, Ghost3_y_Init
+
+        MOV M[Ghost3_x], R3
+        MOV M[Ghost3_y], R4
+		CALL GhostPrint
+
+		MOV R3, M[Ghost4_x]
+        MOV R4, M[Ghost4_y]
+        CALL GhostErase
+
+		MOV R3, Ghost4_x_Init
+        MOV R4, Ghost4_y_Init
+
+        MOV M[Ghost4_x], R3
+        MOV M[Ghost4_y], R4
+		CALL GhostPrint
+
+        CALL PacmanErase
+        ;Reseta as coordenadas do Pacman para as iniciais
+        MOV R1, PacmanRowInit
+        MOV R2, PacmanColInit   
+        MOV M[PacmanRowIndex], R1
+        MOV M[PacmanColIndex], R2
+       
+        ;Reseta a direcao do Pacman
+        MOV R3, NO_DIRECTION
+        MOV M[PacmanDirection], R3   
+
+
+        CALL PacmanPrint
+
+        POP R2
+        POP R1
+        RET
+;------------------------------------------------------------------------------
+; Pacman
 ;------------------------------------------------------------------------------
 
 ;------------------------------------------------------------------------------
@@ -433,7 +581,7 @@ Portal: PUSH R1
 		CMP R1, FFFFh
 		JMP.Z PortalLeft
 		MOV R2, 80d
-		DIV R1, R2 ;r2 = x%80, r1 = x/80
+		DIV R1, R2 ;R2 = x%80, R1= x/80
 		MOV M[PacmanColIndex], R2
 
 EndPortal: POP R2
@@ -536,62 +684,49 @@ EndPrintScore: POP R6
 ; Fantasma
 ;------------------------------------------------------------------------------
 VerificaMorte: PUSH R1
-			   PUSH R2
-			   PUSH R3
-			   PUSH R4
-			   PUSH R5
-			   PUSH R6
+               PUSH R2
 
-    		   MOV R5, R4
-    		   MOV R6, 81d
-    		   MUL R5, R6             ; R5 = nova_linha * 81
-    		   ADD R6, R3             ; R6 = posição linear
-    		   ADD R6, 8000h          ; endereço da posição na memória
- 
-    		   MOV R1, M[PacmanRowIndex]
-    		   MOV R2, M[PacmanColIndex]
-   
-    		   ; Testa colisão
-    		   MOV R5, 81d
-    		   MUL R1, R5             ; R5 = nova_linha * 81
-    		   ADD R5, R2             ; R6 = posição linear
-    		   ADD R5, 8000h          ; endereço da posição na memória
+               MOV R1, M[PacmanColIndex]
+               MOV R2, M[PacmanRowIndex]
+
+               CMP R1, R3      ; x de pacman e x de fantasma iguais
+               JMP.NZ EndVerify 
+
+               CMP R2, R4      ; y de pacman e y de fantasma iguais
+               JMP.NZ EndVerify 
+               
+               ; Se chegar aqui x e y de fantasma e pacman são iguais
+               CALL Die
+
+EndVerify:     POP R2
+               POP R1
+               RET
 			   
-			   CMP R5, R6
-			   CALL.Z Die
-
-			   POP R6
-			   POP R5
-			   POP R4
-			   POP R3
-			   POP R2
-			   POP R1
-			   RET
-			   
-			   
-UpdateGhostDirUp: PUSH R1
-				   MOV R1, UP
-				   MOV M[GhostDirection], R1
-				   POP R1
-				   RET
-
-UpdateGhostDirDown: PUSH R1
-				   	 MOV R1, DOWN
-				   	 MOV M[GhostDirection], R1
-				   	 POP R1
-				   	 RET
-
-UpdateGhostDirLeft: PUSH R1
-				   	 MOV R1, LEFT
-				   	 MOV M[GhostDirection], R1
-				   	 POP R1
-				   	 RET
-
-UpdateGhostDirRight: PUSH R1
-				   	  MOV R1, RIGHT
-				   	  MOV M[GhostDirection], R1
-				   	  POP R1
-				   	  RET
+;Qual a última direção do fantasma? 
+;Ajuda ele a não travar em paredes e a não voltar
+;UpdateGhostDirUp: PUSH R1
+;				   MOV R1, UP
+;				   MOV M[GhostDirection], R1
+;				   POP R1
+;				   RET
+;
+;UpdateGhostDirDown: PUSH R1
+;				   	 MOV R1, DOWN
+;				   	 MOV M[GhostDirection], R1
+;				   	 POP R1
+;				   	 RET
+;
+;UpdateGhostDirLeft: PUSH R1
+;				   	 MOV R1, LEFT
+;				   	 MOV M[GhostDirection], R1
+;				   	 POP R1
+;				   	 RET
+;
+;UpdateGhostDirRight: PUSH R1
+;				   	  MOV R1, RIGHT
+;				   	  MOV M[GhostDirection], R1
+;				   	  POP R1
+;				   	  RET
 
 VerificaCol:   PUSH R3
 			   PUSH R4
@@ -600,10 +735,10 @@ VerificaCol:   PUSH R3
 
     		   MOV R5, R4
     		   MOV R6, 81d
-    		   MUL R5, R6             ; R5 = nova_linha * 81
-    		   ADD R6, R3             ; R6 = posição linear
-    		   ADD R6, 8000h          ; endereço da posição na memória    
-    		   MOV R6, M[R6]          ; caractere na posição
+    		   MUL R5, R6             
+    		   ADD R6, R3             
+    		   ADD R6, 8000h          
+    		   MOV R6, M[R6]          
  
     		   MOV R5, '#'
     		   CMP R6, R5
@@ -621,22 +756,50 @@ EndGhost: POP R7
 		  POP R1
 		  RET
 
-MoveGhostY: CALL GhostErase
-    		ADD R4, R1
-			CMP R1, 1d
-			CALL.Z UpdateGhostDirDown
-			CALL.NZ UpdateGhostDirUp
-    		CALL GhostPrint
+GetLastChar: PUSH R3
+			 PUSH R4			 
+			 PUSH R6
+			 
+			 MOV R6, 81d
+			 MUL R4, R6 
+			 ADD R6, R3 
+			 ADD R6, 8000h 
+			 MOV R6, M[R6] 
+			 MOV M[GhostLastChar], R6
+			 POP R6
+			 POP R4
+			 POP R3
+			 
+			 RET 
+
+MoveGhostY: CALL GetLastChar
+			CALL GhostErase
+
+			CALL VerificaMorte
+			ADD R4, R1
+			CALL VerificaMorte
+			;CMP R1, 1d
+			;CALL.Z UpdateGhostDirDown
+			;CALL.NZ UpdateGhostDirUp
+
+			CALL GhostPrint
+			JMP EndGhost 
+			
+
+MoveGhostX: CALL GetLastChar
+			CALL GhostErase
+			
+
+			CALL VerificaMorte
+			ADD R3, R6
+			CALL VerificaMorte
+
+			;CMP R6, 1d
+			;CALL.Z UpdateGhostDirDown
+			;CALL.NZ UpdateGhostDirUp
+
+			CALL GhostPrint
 			JMP EndGhost
-
-MoveGhostX:   CALL GhostErase
-    		  ADD R3, R6
-			  CMP R6, 1d
-			  CALL.Z UpdateGhostDirRight
-			  CALL.NZ UpdateGhostDirLeft
-    		  CALL GhostPrint
-			  RET
-
 
 CalcDist: PUSH R1
 		  PUSH R2
@@ -667,10 +830,10 @@ CalcDist: PUSH R1
 		  RET
 
 InverteX: NEG R3
-		 RET
+		  RET
 
 InverteY: NEG R4
-		 RET
+		  RET
 
 MoveGhost:    PUSH R1
 		   	  PUSH R2
@@ -681,88 +844,87 @@ MoveGhost:    PUSH R1
 			  ;R3 - fantasma eixo x
 			  ;R4 - fantasma eixo y
 
-			  ;ele se move para cima
+;CALCULA TODAS AS DISTÂNCIAS SEPARADAMENTE
 DistUp:	 	  PUSH R4
-			  PUSH R6
+			  ;PUSH R6
 			  DEC R4
 			  CALL VerificaCol
 			  JMP.Z NoDistUp
 
-			  MOV R6, M[GhostDirection]
-			  CMP R6, DOWN
-			  JMP.Z NoDistUp
-			  POP R6
+			  ;MOV R6, M[GhostDirection]
+			  ;CMP R6, DOWN
+			  ;JMP.Z NoDistUp
+			  ;POP R6
 
 			  CALL CalcDist
 			  MOV R1, R5
 		 	  POP  R4
 			  JMP DistDown  
 
-NoDistUp:	  MOV R1, 200d
-			  POP R6
+NoDistUp:	  MOV R1, 999d
+			  ;POP R6
 			  POP R4
-			  ;ele se move para baixo
 			  
 DistDown:	  PUSH R4
-			  PUSH R6
+			  ;PUSH R6
 			  INC R4
 			  CALL VerificaCol
 			  JMP.Z NoDistDown
 			  
-			  MOV R6, M[GhostDirection]
-			  CMP R6, UP
-			  JMP.Z NoDistDown
-			  POP R6
+			  ;MOV R6, M[GhostDirection]
+			  ;CMP R6, UP
+			  ;JMP.Z NoDistDown
+			  ;POP R6
 
 			  CALL CalcDist
 			  MOV R2, R5
 			  POP R4
 			  JMP DistRight
 			  
-NoDistDown: MOV R2, 200d
-			POP R6
+NoDistDown: MOV R2, 999d
+			;POP R6
 			POP R4
 
 			  ;Calcula a posição x
 
 DistRight: 	  PUSH R3
-			  PUSH R1
+			  ;PUSH R1
 			  INC R3
 			  CALL VerificaCol
 			  JMP.Z NoDistRight
 
-			  MOV R1, M[GhostDirection]
-			  CMP R1, LEFT
-			  JMP.Z NoDistRight
-			  POP R1
+			  ;MOV R1, M[GhostDirection]
+			  ;CMP R1, LEFT
+			  ;JMP.Z NoDistRight
+			  ;POP R1
 
 			  CALL CalcDist
 			  MOV R6, R5
 			  POP R3
 			  JMP DistLeft
 
-NoDistRight:  MOV R6, 200d
-			  POP R1
+NoDistRight:  MOV R6, 999d
+			  ;POP R1
 			  POP R3
 
 DistLeft:     PUSH R3
-			  PUSH R1
+			  ;PUSH R1
 			  DEC R3
 			  CALL VerificaCol
 			  JMP.Z NoDistLeft
 
-			  MOV R1, M[GhostDirection]
-			  CMP R1, RIGHT
-			  JMP.Z NoDistLeft
-			  POP R1
+			  ;MOV R1, M[GhostDirection]
+			  ;CMP R1, RIGHT
+			  ;JMP.Z NoDistLeft
+			  ;POP R1
 
 			  CALL CalcDist
 			  MOV R7, R5
 			  POP R3
 			  JMP TakeDecision
 
-NoDistLeft:   MOV R7, 200d
-			  POP R1
+NoDistLeft:   MOV R7, 999d
+			  ;POP R1
 			  POP R3
 
 			  ;ESCOLHE A MENOR DISTÂNCIA PARA TOMAR DECISÃO
@@ -776,8 +938,7 @@ TakeDecision: CMP R1, R2
 
 			  CMP R2, R7
 			  JMP.N MoveGhostY
-			  CALL MoveGhostX
-			  JMP EndGhost
+			  JMP MoveGhostX
 
 UpCMP: MOV R2, R1
 	MOV R1, -1
@@ -801,7 +962,7 @@ GhostErase:  PUSH R1
 			 OR  R4, R3
 			 MOV M[CURSOR], R4
 
-			 MOV R1, M[NADA]
+			 MOV R1, M[GhostLastChar]
 			 MOV M[IO_WRITE], R1
 			 
 			 POP R4
@@ -831,11 +992,8 @@ GhostPrint:  PUSH R1
 
 Die: 	PUSH R1
 		PUSH R2
-		PUSH R3
-		PUSH R4
 		PUSH R5
-		
-		CALL PacmanErase
+
 		MOV R4, 12d
 		MOV R1, M[Vidas]
 		DEC R1
@@ -843,12 +1001,12 @@ Die: 	PUSH R1
 
 		ADD R1, '0'
 
-		PUSH R1               ; Fazendo uma "função aninhada"
+		PUSH R1               
         PUSH R3
         MOV R1, R0            
         SHL R1, ROW_SHIFT     
         OR  R1, R4            
-        MOV M[CURSOR], R1     ; Define a posicao do cursor
+        MOV M[CURSOR], R1
         POP R3                
         POP R1                
         
@@ -858,20 +1016,9 @@ Die: 	PUSH R1
 		CMP R2, R0
 		CALL.Z PrintGameOver
 		
-		MOV R4, PacmanRowInit
-		MOV R3, PacmanColInit
-
-		MOV M[PacmanRowIndex], R4
-		MOV M[PacmanColIndex], R3
-		
-		MOV R5, NO_DIRECTION
-		MOV M[PacmanDirection], R5
-
-		CALL PacmanPrint
+		CALL Reset
 
 		POP R5
-		POP R4 
-		POP R3
 		POP R2
 		POP R1
 		RET
@@ -891,17 +1038,35 @@ Main:			ENI
 				MOV		R1, CURSOR_INIT		; We need to initialize the cursor 
 				MOV		M[ CURSOR ], R1		; with value CURSOR_INIT
 
+				;Printa mapa
 				MOV R1, L0
 				MOV R2, L23
 				CALL PrintMap
-
+				
+				;Printa todos os fantasmas nas suas posições iniciais
 				MOV R3, M[Ghost1_x]
 				MOV R4, M[Ghost1_y]
 				CALL GhostPrint
+
+				MOV R3, M[Ghost2_x]
+				MOV R4, M[Ghost2_y]
+				CALL GhostPrint
+
+				MOV R3, M[Ghost3_x]
+				MOV R4, M[Ghost3_y]
+				CALL GhostPrint
+
+				MOV R3, M[Ghost4_x]
+				MOV R4, M[Ghost4_y]
+				CALL GhostPrint
 				
-				CALL PrintScore 
+				;Ìnicia o Score
+				CALL PrintScore
+
+				;Printa pacman na posição inicial 
 				CALL PacmanPrint
 				
+				;Inicia timer
 				CALL ConfigTimer
 				
 				;--------------------------------------------------------------
