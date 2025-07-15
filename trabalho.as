@@ -166,6 +166,7 @@ INT0            WORD    UpdatePacmanDirUp
 INT1            WORD    UpdatePacmanDirLeft
 INT2            WORD    UpdatePacmanDirDown
 INT3            WORD    UpdatePacmanDirRight
+INT4			WORD	Pause
 
 				ORIG 	FE0Fh
 INT15			WORD	Timer
@@ -177,6 +178,27 @@ INT15			WORD	Timer
 ;------------------------------------------------------------------------------
                 ORIG    0000h
                 JMP     Main
+
+
+;------------------------------------------------------------------------------
+; Pause
+;------------------------------------------------------------------------------
+
+Pause:     PUSH R1
+	       MOV R1, M[ACTIVATE_TIMER]
+	       CMP R1, ON
+	       JMP.Z PauseGame
+	       JMP.NZ Unpause
+
+PauseGame: MOV R1, OFF
+	       MOV M[ACTIVATE_TIMER], R1
+		   JMP EndPause
+
+Unpause:   MOV R1, ON
+	       MOV M[ACTIVATE_TIMER], R1
+
+EndPause:  POP R1
+	   	   RTI
 
 ;------------------------------------------------------------------------------
 ; Relogio
