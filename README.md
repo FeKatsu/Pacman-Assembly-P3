@@ -87,12 +87,11 @@ java -jar p3sim.jar trabalho.exe
 
 Desenvolver um jogo em linguagem Assembly para um processador didático foi uma experiência profunda e enriquecedora. Ao sair da abstração proporcionada por linguagens de alto nível, foi possível entender com mais clareza:
 
-
-🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 
-
 - Como dados são movidos e manipulados na memória
 - Como o controle de fluxo é feito por **saltos e interrupções**
 - A importância de cada registrador na execução de tarefas
 - A dificuldade (e valor) de implementar lógicas complexas com instruções simples
 
 Além de reforçar o conteúdo teórico da disciplina de Arquitetura de Computadores, o projeto proporcionou uma vivência prática rara: **programar quase diretamente sobre o hardware**.
+
+🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠 🟡 🥠
