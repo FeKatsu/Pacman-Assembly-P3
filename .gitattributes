@@ -1,1 +1,5 @@
 *.as linguist-language=Assembly
+
+simulator/** linguist-detectable=false
+assembler/** linguist-detectable=false
+manual/** linguist-detectable=false
